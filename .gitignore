@@ -13,3 +13,4 @@ db.json
 .vscode/*
 local_settings.py
 tox.ini
+media/*
