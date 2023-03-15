@@ -1,6 +1,7 @@
+from django import forms
 from django.db import models
 
-from modelcluster.fields import ParentalKey
+from modelcluster.fields import ParentalKey, ParentalManyToManyField
 from modelcluster.contrib.taggit import ClusterTaggableManager
 from taggit.models import TaggedItemBase
 
@@ -8,6 +9,7 @@ from wagtail.models import Page, Orderable
 from wagtail.fields import RichTextField
 from wagtail.admin.panels import FieldPanel, InlinePanel, MultiFieldPanel
 from wagtail.search import index
+from wagtail.snippets.models import register_snippet
 
 
 class NoteIndexPage(Page):
@@ -36,6 +38,7 @@ class NotePage(Page):
     intro = models.CharField(max_length=250)
     body = RichTextField(blank=True)
     tags = ClusterTaggableManager(through=NotePageTag, blank=True)
+    categories = ParentalManyToManyField('notes.NoteCategory', blank=True)
 
     def main_image(self):
         gallery_item = self.gallery_images.first()
@@ -53,6 +56,7 @@ class NotePage(Page):
         MultiFieldPanel([
             FieldPanel('date'),
             FieldPanel('tags'),
+            FieldPanel('categories', widget=forms.CheckboxSelectMultiple),
         ], heading="Note information"),
         FieldPanel('intro'),
         FieldPanel('body'),
@@ -84,3 +88,23 @@ class NoteTagIndexPage(Page):
         context = super().get_context(request)
         context['notepages'] = notepages
         return context
+
+
+@register_snippet
+class NoteCategory(models.Model):
+    name = models.CharField(max_length=255)
+    icon = models.ForeignKey(
+        'wagtailimages.Image', null=True, blank=True,
+        on_delete=models.SET_NULL, related_name='+'
+    )
+
+    panels = [
+        FieldPanel('name'),
+        FieldPanel('icon'),
+    ]
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name_plural = 'Note Categories'
