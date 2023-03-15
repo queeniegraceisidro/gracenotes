@@ -1,0 +1,15 @@
+**/.vscode/*
+**/__pycache__/*
+*.sqlite3
+*.pyc~
+env/
+../env/
+venv/
+../venv/
+../.idea/
+.idea
+.idea/*
+db.json
+.vscode/*
+local_settings.py
+tox.ini
